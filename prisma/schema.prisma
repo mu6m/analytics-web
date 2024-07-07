@@ -1,0 +1,35 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model website {
+  id        String   @id @unique @default(cuid())
+  url       String   @unique
+  users     user[]
+  createdAt DateTime @default(now())
+}
+
+model user {
+  id         String  @id @unique @default(cuid())
+  ip         String
+  website    website @relation(fields: [website_id], references: [id])
+  website_id String
+  hits       hit[]
+
+  @@unique([ip, website_id])
+}
+
+model hit {
+  id        String   @id @unique @default(cuid())
+  url       String
+  headers   Json
+  createdAt DateTime @default(now())
+  user      user     @relation(fields: [user_id], references: [id])
+  user_id   String
+}
